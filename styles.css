@@ -132,10 +132,10 @@ body {
   opacity: 0.9;
   cursor: pointer;
 }
-
 .quote {
   background: #698d96;
 }
+
 .hidden {
   display: none;
 }
