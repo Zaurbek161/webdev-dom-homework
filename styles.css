@@ -136,3 +136,6 @@ body {
 .quote {
   background: #698d96;
 }
+.hidden {
+  display: none;
+}
