@@ -168,7 +168,7 @@
           // writeButton.disabled = false;
           // writeButton.textContent = 'Написать';
           document.getElementById('loading').classList.add('load');
-          document.getElementById('form').classList.remove('load');
+          document.getElementById('form').classList.add('load');
 
           userName.value = '';
           userComment.value = '';
@@ -193,11 +193,13 @@
           // </div>`;
         })
         .catch((error) => {
-          document.getElementById('loading').classList.add('load');
+          document.getElementById('loading').classList.remove('load');
           document.getElementById('form').classList.remove('load');
           document.getElementById('writeButton').disabled = false;
 
           alert('Something wrong with Internet :-((');
+        }).finally(()=>{
+
         })
         renderComments();
 
