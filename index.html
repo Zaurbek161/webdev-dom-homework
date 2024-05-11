@@ -139,8 +139,7 @@
           const direction =  comments[index].isLiked ? -1 : +1;
 
           comments[index].numLikes += direction;
-          comments[index].isLiked = !comments[index].isLiked; 
-
+          comments[index].isLiked = !comment[index].isLiked;         
         renderComments();
         })
       } 
@@ -152,33 +151,26 @@
       })
     }
     writeButton.disabled = true;
-    
-    const isUserNameValid = () => {
-    return userName.value.trim() !== "";
-    };
 
-    const isUserCommentValid = () => {
-      return userComment.value.trim() !== "";
-    };
 
 
 
     userName.addEventListener('input', (e) => {  
-      if (isUserNameValid() && isUserCommentValid()) {
-       writeButton.disabled = false;
-      } else {
+
+      if (userName.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
-      }
-    });
-    
+    } else {
+        writeButton.disabled = false;
+    }
+})
     userComment.addEventListener('input', (e) => {
 
-   if (isUserNameValid() && isUserCommentValid()) {
-       writeButton.disabled = false;
-       } else {
+      if (userComment.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
-       }
-    });
+      } else {
+        writeButton.disabled = false;
+      }
+})
 
 function sanitize(text) {
       return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -188,7 +180,8 @@ function sanitize(text) {
       e.stopPropagation();
 
     let date = new Date();
-    let currentDate = `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes()}`;
+      let currentDate = date.toLocaleDateString() + " ";
+      + date.getHours() + ":" + date.getMinutes();
       userName.classList.remove('error');
       userComment.classList.remove('error');
         if (userName.value === '') {
