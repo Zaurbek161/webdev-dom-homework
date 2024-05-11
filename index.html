@@ -1,113 +1,58 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title>Проект "Комменты"</title>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-
-<body>
-  <div class="container">
-    <ul id="list" class="comments">
-      <!-- Комментарии рендерятся из JS -->
-      <!-- <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li> -->
-    </ul>
-    <div class="add-form">
-      <input type="text" id="userName" class="add-form-name" placeholder="Введите ваше имя" />
-      <textarea type="textarea" id="userComment" class="add-form-text" placeholder="Введите ваш коментарий"
-        rows="4"></textarea>
-      <div class="add-form-row">
-        <button id="writeButton" class="add-form-button">Написать</button>
-      </div>
-      <div>
-        <button id="delete-button" class="delete-form-button">Удалить последний комментарий</button>
+  <head>
+    <title>Проект "Комменты"</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <ul id="list" class="comments">
+        <!-- Комментарии рендерятся из JS -->
+      </ul>
+      <div id="loading" class="add-form load">Loading</div>
+      <div id="form" class="add-form">
+          <input
+          type="text"
+          id="userName"
+          class="add-form-name"
+          placeholder="Введите ваше имя"
+        />
+        <textarea
+          type="textarea"
+          id="userComment"
+          class="add-form-text"
+          placeholder="Введите ваш коментарий"
+          rows="4"
+        ></textarea>
+        <div class="add-form-row">
+          <button id="writeButton" class="add-form-button">Написать</button>
+        </div>
+        <div>
+          <button id="delete-button" class="delete-form-button">Удалить последний комментарий</button>
+        </div>
       </div>
     </div>
-  </div>
-</body>
-<script>
-  "use strict";
-  const writeButton = document.getElementById('writeButton');
-  const deleteButton = document.getElementById('delete-button');
-  const commentsList = document.getElementById('list');
-  const userName = document.getElementById('userName');
-  const userComment = document.getElementById('userComment');
-  let listComments = [];
-  // const result1 = fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         id: 1,
-  //         author: {name: "Глеб Фокин"},
-  //         text: "Это будет первый комментарий на этой странице",
-  //         date: "12.02.22 12:18",
-  //         likes: 3,
-  //         isLiked: false,
-  //       }),
-  //     }).then((response) => {
-  //       const jsonPromis = response.json().then((jsonResponse) => {
-  //         console.log(jsonResponse);
-  //         renderComments();
-  //       })
-  //     })
-  // const result2 = fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
-  //   method: "POST",
-  //   body: JSON.stringify({
-  //     id: 2,
-  //     author: {name: "Варвара Н."},
-  //     text: "Мне нравится как оформлена эта страница! ❤",
-  //     date: "13.02.22 19:22",
-  //     likes: 75,
-  //     isLiked: true
-  //   }),
-  // }).then((response) => {
-  //   const jsonPromis = response.json().then((jsonResponse) => {
-  //     console.log(jsonResponse);
-  //     renderComments();
-  //   })
-  // })
-  const renderComments = () => {
-    const commentsHTML = listComments.map((userComment) => {
+  </body>
+  <script>
+    "use strict";
+    const writeButton = document.getElementById('writeButton');
+    const deleteButton = document.getElementById('delete-button');
+    const commentsList = document.getElementById('list');
+    const userName = document.getElementById('userName');
+    const userComment = document.getElementById('userComment');
+    const form = document.getElementById('form');
+    commentsList.innerHTML = `<li class="comment">Loading in progress. Plese wait...</li>`;
+    let listComments = [];
+    const renderComments = () => {
+      const commentsHTML = listComments.map((userComment, index) => {
       let textHTML;
-
+        
       textHTML = `<li class="comment">
         <div class="comment-header">
           <div>${userComment.author.name}</div>
           <div>${new Date(userComment.date).toLocaleDateString() + " "
-        + new Date(userComment.date).getHours() + ":" + new Date(userComment.date).getMinutes()}</div>
+            + new Date(userComment.date).getHours() + ":" + new Date(userComment.date).getMinutes()}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
@@ -117,131 +62,169 @@
         <div class="comment-footer">
           <div class="likes">
             <span class="likes-counter">${userComment.likes}</span>
-            <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-id='${userComment.id}'></button>
+            <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
           </div>
         </div>
       </li>`
       return textHTML;
-    }).join('');
-    commentsList.innerHTML = commentsHTML;
-
-    likeEvent();
-    answerComment();
-  }
-
-  get();
-  // deleteComment();
-
+      }).join('');
+      commentsList.innerHTML = commentsHTML;
+      likeEvent();
+      answerComment();
+    }
+    get();
+    // renderComments();
   function get() {
-    fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
+    return fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
       method: "GET",
     })
-      .then((res) => res.json())
-      .then((data) => listComments = data.comments)
-      .then(() => renderComments());
-  }
-
-  function likeEvent() {
-    const likes = document.querySelectorAll('.like-button');
-
-    likes.forEach((element, index) => {
-      element.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const currentComment = listComments[index];
-
-        const direction = currentComment.isLiked ? -1 : +1;
-        currentComment.likes += direction;
-        currentComment.isLiked = !currentComment.isLiked;
-
-        renderComments()
-      })
+    .then((promis) => {
+      return promis.json();
     })
+    .then((resultDATA) => {
+      listComments = resultDATA.comments;
+      renderComments();
+    });
   }
-
-  // function deleteComment() { // function for deleting last comment
-
-  //   deleteButton.addEventListener('click', () => {
-  //   // listComments.pop();
-
-  //     const id = delButton.dataset.id;
-  //     const resultDelete = fetch("https://wedev-api.sky.pro/api/Zaurbek161/comments" + id, {
-  //       method: "DELETE",
-  //     }).then((response) => {
-  //       const jsonPromis = response.json().then((jsonResponse) => {
-  //         // console.log(jsonResponse);
-  //         listComments = jsonResponse.comments;
-  //         renderComments();
-  //       })
-  //     })
-  //   })
-
-  //   renderComments();
-
-  // }
-
-  writeButton.disabled = true;
-  userName.addEventListener('input', (e) => {  //added event for empty input.
-    if (userName.value.trim() === '' || e.target.value.trim() === '') {
-      writeButton.disabled = true;
-    } else {
-      writeButton.disabled = false;
-    }
-  })
-  userComment.addEventListener('input', (e) => {
-    if (userComment.value.trim() === '' || e.target.value.trim() === '') {
-      writeButton.disabled = true;
-    } else {
-      writeButton.disabled = false;
-    }
-  })
-  function sanitize(text) {
-    return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-      .replaceAll('QUOTE_BEGIN', '<div class="quote">').replaceAll('QUOTE_END', '</div>');
-  }
-  writeButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    let date = new Date();
-    let currentDate = date.toLocaleDateString() + " "
-      + date.getHours() + ":" + date.getMinutes();
-    userName.classList.remove('error');
-    userComment.classList.remove('error');
-    if (userName.value === '') {
-      userName.classList.add('error');
-    } else if (userComment.value === '') {
-      userComment.classList.add('error');
-    } else {
-      const result = fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
-        method: "POST",
-        body: JSON.stringify({
-          name: sanitize(userName.value),
-          text: sanitize(userComment.value),
-          date: currentDate,
-          likes: 0,
-          isLiked: false
+    function likeEvent () {
+      const likes = document.querySelectorAll('.like-button');
+      
+      for (const likeElement of likes) {
+        likeElement.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const index = likeElement.dataset.index;
+          const direction = listComments[index].isLiked ? -1 : +1;
+          listComments[index].likes += direction;
+          listComments[index].isLiked = !listComments[index].isLiked;
+          renderComments();
         })
-      }).then(() => {
-        get();
-      })
-
-      userName.value = '';
-      userComment.value = '';
-      document.getElementById('writeButton').disabled = true;
+      } 
     }
-  })
-  function answerComment() {
-    const commentHTML = document.querySelectorAll('.comment');
-    commentHTML.forEach((el, i) => {
-      el.addEventListener('click', () => {
-        userComment.value = `QUOTE_BEGIN>${listComments[i].author.name}\n ${listComments[i].text}QUOTE_END`;
-      })
+    writeButton.disabled = true;
+    userName.addEventListener('input', (e) => {  //added event for empty input.
+      if (userName.value.trim() === '' || e.target.value.trim() === '') {
+        writeButton.disabled = true;
+      } else {
+        writeButton.disabled = false;
+      }
     })
-  }
-  document.addEventListener('keyup', (el) => {
-    if (el.keyCode === 13) {
-      writeButton.click();
+    userComment.addEventListener('input', (e) => {
+      if (userComment.value.trim() === '' || e.target.value.trim() === '') {
+        writeButton.disabled = true;
+      } else {
+        writeButton.disabled = false;
+      }
+    })
+    function sanitize(text) {
+      return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('QUOTE_BEGIN', '<div class="quote">').replaceAll('QUOTE_END', '</div>');
     }
-  })
-  console.log("It works!");
-</script>
+    function afterClickWriteButton(e) {
+      e.stopPropagation();
+      let date = new Date();
+      let currentDate = date.toLocaleDateString() + " "
+      + date.getHours() + ":" + date.getMinutes();
+      userName.classList.remove('error');
+      userComment.classList.remove('error');
+      if (userName.value === '') {
+        userName.classList.add('error');
+      } else if (userComment.value === '') {
+        userComment.classList.add('error');
+      } else {
+        const startTime = Date.now();
+        // writeButton.disabled = true;
+        // writeButton.textContent = 'loading...';
+        document.getElementById('loading').classList.remove('load');
+        document.getElementById('form').classList.add('load');
+        const result = fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
+          method: "POST",
+          body: JSON.stringify({
+            name: sanitize(userName.value),
+            text: sanitize(userComment.value),
+            date: currentDate,
+            likes: 0,
+            isLiked: false 
+          }),
+        })
+        .then((response) => {
+          console.log('Прошло времени: ' + (Date.now() - startTime));
+          return response
+        })
+        .then((response) => {
+          return response.json();
+        })
+        .then((response) => {
+          console.log('Прошло времени: ' + (Date.now() - startTime));
+          return response
+        })
+        .then((jsonResponse) => {
+          return get();
+        })
+        .then((response) => {
+          console.log('Прошло времени: ' + (Date.now() - startTime));
+          return response
+        })
+        .then((final) => {
+          // writeButton.disabled = false;
+          // writeButton.textContent = 'Написать';
+          document.getElementById('loading').classList.add('load');
+          document.getElementById('form').classList.add('load');
 
+          userName.value = '';
+          userComment.value = '';
+          //   form.innerHTML = `<input
+          //   type="text"
+          //   id="userName"
+          //   class="add-form-name"
+          //   placeholder="Введите ваше имя"
+          // />
+          // <textarea
+          //   type="textarea"
+          //   id="userComment"
+          //   class="add-form-text"
+          //   placeholder="Введите ваш коментарий"
+          //   rows="4"
+          // ></textarea>
+          // <div class="add-form-row">
+          //   <button id="writeButton" class="add-form-button" onclick="afterClickWriteButton();" >Написать</button>
+          // </div>
+          // <div>
+          //   <button id="delete-button" class="delete-form-button">Удалить последний комментарий</button>
+          // </div>`;
+        })
+        .catch((error) => {
+          document.getElementById('loading').classList.remove('load');
+          document.getElementById('form').classList.remove('load');
+          document.getElementById('writeButton').disabled = false;
+
+          alert('Something wrong with Internet :-((');
+        }).finally(()=>{
+
+        })
+        renderComments();
+
+      }
+    }
+
+    document.getElementById('writeButton').disabled = true;
+
+    // writeButton.addEventListener('click', afterClickWrightButton);
+    writeButton.onclick = afterClickWriteButton;
+
+    function answerComment() {
+      const commentHTML = document.querySelectorAll('.comment');
+      commentHTML.forEach((el, i) => {
+        el.addEventListener('click', () => {
+          userComment.value = `QUOTE_BEGIN>${listComments[i].author.name}\n ${listComments[i].text}QUOTE_END`;
+        })
+      })
+    }
+    document.addEventListener('keyup', (el) => {      // added event for pressing Enter.
+      if (el.keyCode === 13) {
+        writeButton.click();
+      }
+    })
+    console.log("It works!");
+    //some code to commit on github111
+  </script>
 </html>
