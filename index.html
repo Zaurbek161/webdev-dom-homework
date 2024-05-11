@@ -174,7 +174,7 @@
       for (const likeElement of likes) {
         likeElement.addEventListener('click', (e) => {
           e.stopPropagation();
-          // const index = likeElement.dataset.index;
+          const index = likeElement.dataset.index;
           const direction = listComments[index].isLiked ? -1 : +1;
           listComments[index].likes += direction;
           listComments[index].isLiked = !listComments[index].isLiked;
@@ -280,6 +280,6 @@
     })
     console.log("It works!");
 
-    some code to commit to github
+  
   </script>
 </html>
