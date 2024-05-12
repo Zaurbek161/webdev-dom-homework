@@ -8,7 +8,41 @@
   <body>
     <div class="container">
       <ul id="list" class="comments">
-        <!-- Комментарии рендерятся из JS -->
+
+            <li class="comment">
+          <div class="comment-header">
+            <div>Глеб Фокин</div>
+            <div>12.02.22 12:18</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              Это будет первый комментарий на этой странице
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">3</span>
+              <button class="like-button"></button>
+            </div>
+          </div>
+        </li>
+        <li class="comment">
+          <div class="comment-header">
+            <div>Варвара Н.</div>
+            <div>13.02.22 19:22</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              Мне нравится как оформлена эта страница! ❤
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">75</span>
+              <button class="like-button -active-like"></button>
+            </div>
+          </div>
+         </li> 
       </ul>
       <div id="loading" class="add-form load">Loading</div>
       <div id="form" class="add-form">
@@ -41,74 +75,95 @@
     const commentsList = document.getElementById('list');
     const userName = document.getElementById('userName');
     const userComment = document.getElementById('userComment');
-    const form = document.getElementById('form');
-    commentsList.innerHTML = `<li class="comment">Loading in progress. Plese wait...</li>`;
-    let listComments = [];
+    const comments = [
+      {
+        name: 'Глеб Фокин',
+        comment: 'Это будет первый комментарий на этой странице',
+        time: '12.02.22 12:18',
+        numLikes: 3,
+        isLiked: false
+      },
+      {
+        name: 'Варвара Н.',
+        comment: 'Мне нравится как оформлена эта страница! ❤',
+        time: '13.02.22 19:22',
+        numLikes: 75,
+        isLiked: true
+      }
+    ];
+
     const renderComments = () => {
-      const commentsHTML = listComments.map((userComment, index) => {
-      let textHTML;
+      const commentsHTML = comments.map((userComment, index) => {
         
-      textHTML = `<li class="comment">
-        <div class="comment-header">
-          <div>${userComment.author.name}</div>
-          <div>${new Date(userComment.date).toLocaleDateString() + " "
-            + new Date(userComment.date).getHours() + ":" + new Date(userComment.date).getMinutes()}</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            ${userComment.text}
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">${userComment.likes}</span>
-            <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
-          </div>
-        </div>
-      </li>`
-      return textHTML;
-      }).join('');
-      commentsList.innerHTML = commentsHTML;
-      likeEvent();
-      answerComment();
-    }
-    get();
-    // renderComments();
-  function get() {
-    return fetch("https://wedev-api.sky.pro/api/v1/Zaurbek161/comments", {
-      method: "GET",
-    })
-    .then((promis) => {
-      return promis.json();
-    })
-    .then((resultDATA) => {
-      listComments = resultDATA.comments;
-      renderComments();
-    });
-  }
+        let textHTML;       
+
+        textHTML = `<li class="comment">
+            <div class="comment-header">
+              <div>${userComment.name}</div>
+              <div>${userComment.time}</div>
+            </div>
+            <div class="comment-body">
+              <div class="comment-text">
+                ${userComment.comment}
+              </div>
+            </div>
+            <div class="comment-footer">
+              <div class="likes">
+                <span class="likes-counter">${userComment.numLikes}</span>
+                <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
+              </div>
+            </div>
+          </li>`
+          return textHTML;
+
+        }).join('');
+
+        commentsList.innerHTML = commentsHTML;
+
+        likeEvent();
+        answerComment();       
+
+        }
+
+        renderComments();
+        deleteComment();
+     
     function likeEvent () {
       const likes = document.querySelectorAll('.like-button');
-      
-      for (const likeElement of likes) {
+          for (const likeElement of likes) {
         likeElement.addEventListener('click', (e) => {
           e.stopPropagation();
-          const index = likeElement.dataset.index;
-          const direction = listComments[index].isLiked ? -1 : +1;
-          listComments[index].likes += direction;
-          listComments[index].isLiked = !listComments[index].isLiked;
-          renderComments();
+
+          const index = likeElement.dataset.index; 
+          const direction =  comments[index].isLiked ? -1 : +1;
+
+          comments[index].numLikes += direction;
+          comments[index].isLiked = !comment[index].isLiked;         
+        renderComments();
         })
       } 
     }
+    function deleteComment() {
+      deleteButton.addEventListener('click', () => {
+        comments.pop();
+        renderComments();
+      })
+    }
     writeButton.disabled = true;
-    userName.addEventListener('input', (e) => {  //added event for empty input.
+
+
+
+
+    userName.addEventListener('input', (e) => {  
+
       if (userName.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
-      } else {
+    } else {
         writeButton.disabled = false;
-      }
-    })
+    }
+})
     userComment.addEventListener('input', (e) => {
+
       if (userComment.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
       } else {
@@ -224,6 +279,7 @@
         writeButton.click();
       }
     })
+    
     console.log("It works!");
     //some code to commit on github111
   </script>
