@@ -5,12 +5,11 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-
   <body>
     <div class="container">
       <ul id="list" class="comments">
-
-            <li class="comment">
+        
+        <li class="comment">
           <div class="comment-header">
             <div>Глеб Фокин</div>
             <div>12.02.22 12:18</div>
@@ -43,7 +42,7 @@
               <button class="like-button -active-like"></button>
             </div>
           </div>
-         </li> 
+        </li> 
       </ul>
       <div class="add-form">
         <input
@@ -62,13 +61,12 @@
         <div class="add-form-row">
           <button id="writeButton" class="add-form-button">Написать</button>
         </div>
-       <div>
+        <div>
           <button id="delete-button" class="delete-form-button">Удалить последний комментарий</button>
         </div>
-        </div>
+      </div>
     </div>
   </body>
-///все ок 
   <script>
     "use strict";
     const writeButton = document.getElementById('writeButton');
@@ -92,99 +90,86 @@
         isLiked: true
       }
     ];
-
     const renderComments = () => {
       const commentsHTML = comments.map((userComment, index) => {
+      let textHTML;
         
-        let textHTML;       
-
-        textHTML = `<li class="comment">
-            <div class="comment-header">
-              <div>${userComment.name}</div>
-              <div>${userComment.time}</div>
-            </div>
-            <div class="comment-body">
-              <div class="comment-text">
-                ${userComment.comment}
-              </div>
-            </div>
-            <div class="comment-footer">
-              <div class="likes">
-                <span class="likes-counter">${userComment.numLikes}</span>
-                <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
-              </div>
-            </div>
-          </li>`
-          return textHTML;
-
-        }).join('');
-
-        commentsList.innerHTML = commentsHTML;
-
-        likeEvent();
-        answerComment();       
-
-        }
-
-        renderComments();
-        deleteComment();
-     
+      textHTML = `<li class="comment">
+        <div class="comment-header">
+          <div>${userComment.name}</div>
+          <div>${userComment.time}</div>
+        </div>
+        <div class="comment-body">
+          <div class="comment-text">
+            ${userComment.comment}
+          </div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">${userComment.numLikes}</span>
+            <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
+          </div>
+        </div>
+      </li>`
+      return textHTML;
+      }).join('');
+      commentsList.innerHTML = commentsHTML;
+      likeEvent();
+      answerComment();
+    }
+    renderComments();
+    deleteComment();
     function likeEvent () {
       const likes = document.querySelectorAll('.like-button');
-          for (const likeElement of likes) {
+      
+      for (const likeElement of likes) {
         likeElement.addEventListener('click', (e) => {
           e.stopPropagation();
-
-          const index = likeElement.dataset.index; 
-          const direction =  comments[index].isLiked ? -1 : +1;
-
+          const index = likeElement.dataset.index;
+          const direction = comments[index].isLiked ? -1 : +1;
           comments[index].numLikes += direction;
-          comments[index].isLiked = !comment[index].isLiked;         
-        renderComments();
+          comments[index].isLiked = !comments[index].isLiked;
+          renderComments();
         })
       } 
     }
-    function deleteComment() {
+
+    function deleteComment() { // function for deleting last comment
       deleteButton.addEventListener('click', () => {
         comments.pop();
         renderComments();
       })
     }
     writeButton.disabled = true;
-
-
-
-
-    userName.addEventListener('input', (e) => {  
-
+    userName.addEventListener('input', (e) => {  //added event for empty input.
       if (userName.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
-    } else {
+      } else {
         writeButton.disabled = false;
-    }
-})
+      }
+    })
     userComment.addEventListener('input', (e) => {
-
       if (userComment.value.trim() === '' || e.target.value.trim() === '') {
         writeButton.disabled = true;
       } else {
         writeButton.disabled = false;
       }
-})
-
-function sanitize(text) {
-      return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-      replaceAll('QUOTE_BEGIN', '<div class="quote">').replaceAll('QUOTE_END', '</div>');
+    })
+    function sanitize(text) {
+      return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('QUOTE_BEGIN', '<div class="quote">').replaceAll('QUOTE_END', '</div>');
     }
+
     writeButton.addEventListener('click', (e) => {
       e.stopPropagation();
 
-    let date = new Date();
+      let date = new Date();
       let currentDate = date.toLocaleDateString() + " ";
       + date.getHours() + ":" + date.getMinutes();
+
       userName.classList.remove('error');
       userComment.classList.remove('error');
-        if (userName.value === '') {
+      if (userName.value === '') {
         userName.classList.add('error');
       } else if (userComment.value === '') {
         userComment.classList.add('error');
@@ -197,15 +182,15 @@ function sanitize(text) {
           isLiked: false
         })
 
-renderComments();
-      userName.value = '';
-      userComment.value = '';
-      document.getElementById('writeButton').disabled = true;
-            }
-      })
+        renderComments();
 
+        userName.value = '';
+        userComment.value = '';
+        document.getElementById('writeButton').disabled = true;
 
-function answerComment() {
+      }
+    })
+    function answerComment() {
       const commentHTML = document.querySelectorAll('.comment');
       commentHTML.forEach((el, i) => {
         el.addEventListener('click', () => {
@@ -213,18 +198,12 @@ function answerComment() {
         })
       })
     }
-
-document.addEventListener('keyup', (el) => {      
+    document.addEventListener('keyup', (el) => {      // added event for pressing Enter.
       if (el.keyCode === 13) {
         writeButton.click();
       }
     })
-    
+
     console.log("It works!");
   </script>
 </html>
-
-
-
-
-
