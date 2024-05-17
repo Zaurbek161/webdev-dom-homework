@@ -8,44 +8,11 @@
   <body>
     <div class="container">
       <ul id="list" class="comments">
-        
-        <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li> 
+        <!-- Комментарии рендерятся из JS -->
       </ul>
-      <div class="add-form">
-        <input
+      <div id="loading" class="add-form hidden">Loading</div>
+      <div id="form" class="add-form">
+          <input
           type="text"
           id="userName"
           class="add-form-name"
@@ -74,39 +41,27 @@
     const commentsList = document.getElementById('list');
     const userName = document.getElementById('userName');
     const userComment = document.getElementById('userComment');
-    const comments = [
-      {
-        name: 'Глеб Фокин',
-        comment: 'Это будет первый комментарий на этой странице',
-        time: '12.02.22 12:18',
-        numLikes: 3,
-        isLiked: false
-      },
-      {
-        name: 'Варвара Н.',
-        comment: 'Мне нравится как оформлена эта страница! ❤',
-        time: '13.02.22 19:22',
-        numLikes: 75,
-        isLiked: true
-      }
-    ];
+    const form = document.getElementById('form');
+    commentsList.innerHTML = `<li class="comment">Loading in progress. Plese wait...</li>`;
+    let listComments = [];
     const renderComments = () => {
-      const commentsHTML = comments.map((userComment, index) => {
+      const commentsHTML = listComments.map((userComment, index) => {
       let textHTML;
         
       textHTML = `<li class="comment">
         <div class="comment-header">
-          <div>${userComment.name}</div>
-          <div>${userComment.time}</div>
+          <div>${userComment.author.name}</div>
+          <div>${new Date(userComment.date).toLocaleDateString() + " "
+            + new Date(userComment.date).getHours() + ":" + new Date(userComment.date).getMinutes()}</div>
         </div>
         <div class="comment-body">
           <div class="comment-text">
-            ${userComment.comment}
+            ${userComment.text}
           </div>
         </div>
         <div class="comment-footer">
           <div class="likes">
-            <span class="likes-counter">${userComment.numLikes}</span>
+            <span class="likes-counter">${userComment.likes}</span>
             <button class="like-button ${userComment.isLiked ? "-active-like" : ""}" data-index='${index}'></button>
           </div>
         </div>
@@ -117,8 +72,26 @@
       likeEvent();
       answerComment();
     }
-    renderComments();
-    deleteComment();
+    get();
+    function get() {
+      return fetch("https://wedev-api.sky.pro/api/v1/dmitrii-bondar/comments", {
+        method: "GET",
+      })
+      .then((promis) => {
+        if (promis.status === 200) {
+          return promis.json();
+        } else {
+          throw new Error("Сервер упал");
+        }
+      })
+      .then((resultDATA) => {
+        listComments = resultDATA.comments;
+        renderComments();
+      })
+      .catch(() => {
+        alert('Что-то пошло не так с get()...')
+      })
+    }
     function likeEvent () {
       const likes = document.querySelectorAll('.like-button');
       
@@ -126,19 +99,12 @@
         likeElement.addEventListener('click', (e) => {
           e.stopPropagation();
           const index = likeElement.dataset.index;
-          const direction = comments[index].isLiked ? -1 : +1;
-          comments[index].numLikes += direction;
-          comments[index].isLiked = !comments[index].isLiked;
+          const direction = listComments[index].isLiked ? -1 : +1;
+          listComments[index].likes += direction;
+          listComments[index].isLiked = !listComments[index].isLiked;
           renderComments();
         })
       } 
-    }
-
-    function deleteComment() { // function for deleting last comment
-      deleteButton.addEventListener('click', () => {
-        comments.pop();
-        renderComments();
-      })
     }
     writeButton.disabled = true;
     userName.addEventListener('input', (e) => {  //added event for empty input.
@@ -159,14 +125,8 @@
       return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
       .replaceAll('QUOTE_BEGIN', '<div class="quote">').replaceAll('QUOTE_END', '</div>');
     }
-
-    writeButton.addEventListener('click', (e) => {
+    function afterClickWriteButton(e) {
       e.stopPropagation();
-
-      let date = new Date();
-      let currentDate = date.toLocaleDateString() + " ";
-      + date.getHours() + ":" + date.getMinutes();
-
       userName.classList.remove('error');
       userComment.classList.remove('error');
       if (userName.value === '') {
@@ -174,27 +134,77 @@
       } else if (userComment.value === '') {
         userComment.classList.add('error');
       } else {
-        comments.push({
-          name: sanitize(userName.value),
-          comment: sanitize(userComment.value),
-          time: currentDate,
-          numLikes: 0,
-          isLiked: false
-        })
-
-        renderComments();
-
-        userName.value = '';
-        userComment.value = '';
-        document.getElementById('writeButton').disabled = true;
-
+        const startTime = Date.now();
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('form').classList.add('hidden');
+        function post() {
+          const result = fetch("https://wedev-api.sky.pro/api/v1/dmitrii-bondar/comments", {
+            method: "POST",
+            body: JSON.stringify({
+              name: sanitize(userName.value),
+              text: sanitize(userComment.value),
+              forceError: true,
+            }),
+          })
+          .then((response) => {
+            console.log('Прошло времени: ' + (Date.now() - startTime));
+            return response
+          })
+          .then((response) => {
+            console.log(response);
+            if (response.status === 201) {
+              return response.json();
+            } else if (response.status === 400) {
+              alert(`Server error ${response.status}\n\nВведите не менее 3-х символов.`);
+              throw new Error("Сервер упал 400");
+            } else if (response.status === 500) {
+              alert(`Server error ${response.status}`);
+              post();
+              throw new Error("Сервер упал 500");
+            }
+          })
+          .then((response) => {
+            console.log('Прошло времени: ' + (Date.now() - startTime));
+            return response
+          })
+          .then((jsonResponse) => {
+            return get();
+          })
+          .then((response) => {
+            console.log('Прошло времени: ' + (Date.now() - startTime));
+            userName.value = '';
+            userComment.value = '';
+            
+            document.getElementById('writeButton').disabled = true;
+            return response
+          })
+          .catch((error) => {
+            document.getElementById('writeButton').disabled = false;
+            console.warn(error);
+            return error
+          })
+          .finally(() => {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('form').classList.remove('hidden');
+          });
+        }
+        post();
+        let isConnected = window.navigator.onLine;
+        console.log('isConnected' + ' ' + isConnected);
+        if (!isConnected) {
+          alert('Проверьте интернет');
+        }
       }
-    })
+    }
+
+    document.getElementById('writeButton').disabled = true;
+    // writeButton.addEventListener('click', afterClickWrightButton);
+    writeButton.onclick = afterClickWriteButton;
     function answerComment() {
       const commentHTML = document.querySelectorAll('.comment');
       commentHTML.forEach((el, i) => {
         el.addEventListener('click', () => {
-          userComment.value = `QUOTE_BEGIN>${comments[i].name}\n ${comments[i].comment}QUOTE_END`;
+          userComment.value = `QUOTE_BEGIN>${listComments[i].author.name}\n ${listComments[i].text}QUOTE_END`;
         })
       })
     }
@@ -203,7 +213,6 @@
         writeButton.click();
       }
     })
-
     console.log("It works!");
   </script>
 </html>
