@@ -1,96 +1,66 @@
-"use strict";
+import { getCurrentDateTime } from "./modules/helper.js";
+import { getComments, postComments } from "./modules/api.js";
+import { renderComments } from "./modules/renderCom.js";
+import { renderMainPage } from "./modules/renderMainPage.js";
 
-import { getTodos, postTodo } from "/api.js";
-import { fetchComments } from "/fetch.js";
-import { changementLikes } from "/likes.js";
-import { renderComments } from "/renderComments.js";
 
-const buttonEl = document.getElementById("button");
-const inputName = document.querySelector("input");
-const textareaComment = document.getElementById("textarea");
-const loaderComments = document.querySelector(".loader-comments");
-const loaderNewcomment = document.querySelector(".loader-newcomment");
-const formEl = document.querySelector(".add-form");
+export let commentsData = [];
 
-loaderComments.classList.remove("hidden");
+export let user = null;
+let token = null;
 
-fetchComments();
+export function setUser(newUser) {
+    user = newUser;
+};
 
-let comments = [];
+export function setToken(newToken) {
+    token = newToken;
+};
 
-renderComments({ comments });
+export function getToken() {
+    return token
+};
 
-function protectInput(text) {
-  return text
-    .replaceAll("<", "&lt")
-    .replaceAll(">", "&gt")
-    .replaceAll("QUOTE_BEGIN", '<div class="quote">')
-    .replaceAll("QUOTE_END", "</div>");
-}
-
-buttonEl.setAttribute("disabled", true);
-inputName.addEventListener("input", function (e) {
-  if (inputName.value.trim() === "") {
-    buttonEl.setAttribute("disabled", true);
-  } else {
-    buttonEl.removeAttribute("disabled");
-  }
-});
-
-buttonEl.addEventListener("click", () => {
-  inputName.classList.remove("error");
-  textareaComment.classList.remove("error");
-  if (inputName.value === "" || textareaComment.value === "") {
-    inputName.classList.add("error"), textareaComment.classList.add("error");
-    return;
-  }
-
-  loaderNewcomment.classList.remove("hidden");
-  formEl.classList.add("hidden");
-
-  postTodo({
-    text: protectInput(textareaComment.value),
-    name: protectInput(inputName.value),
-  })
-    .then((response) => {
-      if (response.status === 400) {
-        throw new Error("400");
-      }
-
-      if (response.status === 500) {
-        throw new Error("500");
-      }
+export const fetchGetCommentsData = () => {
+    getComments(getToken()).then(responseData => {
+        commentsData = responseData.comments.map(comment => ({
+            author: comment.author.name,
+            dateTime: getCurrentDateTime(comment.date),
+            text: comment.text,
+            likes: comment.likes,
+            liked: comment.isLiked,
+            id: comment.id,
+        }));
+        renderComments();
     })
+        .catch((error) => {
+            alert("Кажется что-то пошло не так, попробуйте похже.");
+            console.warn(error);
+        });
 
-    .then(() => {
-      inputName.value = "";
-      textareaComment.value = "";
+};
+
+export const postFetch = (nameInput, commentInput, addButton, renderForm) => {
+    postComments(nameInput.value, commentInput.value, getToken()).then(async (response) => {
+        if (!response.ok) {
+            let error = await response.json();
+            throw new Error(error.error);
+        }
+        return response.json();
     })
-    .catch((error) => {
-      if (error) {
-        formEl.classList.remove("hidden");
-      }
-      if (error.message === "400") {
-        alert("Имя и комментарий должны быть не короче 3 символов");
-        return;
-      }
-      if (error.message === "500") {
-        alert("Сервер сломался, попробуй позже");
-        return;
-      }
-      alert("Кажется, у вас сломался интернет, попробуйте позже");
-      return;
-      console.warn(error);
-    })
-    .then(() => {
-      fetchComments();
-    });
-
-  changementLikes({ comments }, { renderComments });
-  renderComments({ comments });
-});
-
-console.log("It works!");
-
-
-
+        .then(() => {
+            fetchGetCommentsData();
+        })
+        .then(() => {
+            commentInput.value = "";
+        })
+        .catch((error) => {
+            alert(error.message);
+        })
+        .finally(() => {
+            // renderForm.innerHTML = "";
+            addButton.disabled = false;
+            addButton.textContent = "Написать";
+        });
+};
+renderMainPage();
