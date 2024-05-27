@@ -1,6 +1,5 @@
 
 const HOST_URL = "https://wedev-api.sky.pro/api/v2/Zaurbek161";
-
 export function getComments(token) {
     return fetch(`${HOST_URL}/comments`, {
         headers: {

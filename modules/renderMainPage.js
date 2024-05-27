@@ -1,4 +1,4 @@
-import { fetchGetCommentsData } from "../../main.js";
+import { fetchGetCommentsData } from "../index.js";
 import { renderForm } from "./renderForm.js";
 
 export function renderMainPage() {
