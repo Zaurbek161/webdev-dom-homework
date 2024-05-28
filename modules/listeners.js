@@ -1,4 +1,4 @@
-import { postFetch, getToken, fetchGetCommentsData } from "../../main.js";
+import { postFetch, getToken, fetchGetCommentsData } from "../index.js";
 import { likeComment, deleteComment } from "./api.js";
 
 function initReplyListener(commentInput) {
@@ -6,7 +6,7 @@ function initReplyListener(commentInput) {
   commentElements.forEach((commentElement) => {
     commentElement.addEventListener("click", function () {
       const author = commentElement.querySelector(
-        ".comment-header div"
+        ".comment-header div",
       ).innerText;
       const text = commentElement.querySelector(".comment-text").innerText;
 
@@ -54,7 +54,7 @@ export function initFormListeners() {
 
 export const initDeleteButtonsListeners = () => {
   const deleteButtonsElements = document.querySelectorAll(
-    ".delete-form-button"
+    ".delete-form-button",
   );
   for (const deleteButtonsElement of deleteButtonsElements) {
     deleteButtonsElement.addEventListener("click", (event) => {
